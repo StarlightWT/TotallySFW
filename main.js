@@ -1,5 +1,5 @@
 const { Client, Events, GatewayIntentBits } = require("discord.js");
-const { token } = require("./src.json");
+const { token } = require("./src/src.json");
 const XMLHttpRequest = require("xhr2");
 const { EmbedBuilder } = require("@discordjs/builders");
 let request = new XMLHttpRequest();
