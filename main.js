@@ -1,28 +1,77 @@
-const { Client, Events, GatewayIntentBits } = require("discord.js");
+const {
+  Client,
+  Events,
+  GatewayIntentBits,
+  WebhookClient,
+  PermissionOverwrites,
+  PermissionFlagsBits,
+} = require("discord.js");
 const { token } = require("./src/src.json");
 const XMLHttpRequest = require("xhr2");
 const { EmbedBuilder } = require("@discordjs/builders");
 let request = new XMLHttpRequest();
-const channels = [
-  "1113725807328755782",
-  "1113725846721679390",
-  "1113732533176258641",
-];
+var channels = [];
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+});
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
+client.on(Events.GuildMemberAdd, (member) => {
+  member.guild.channels
+    .create({
+      name: member.id,
+      permissionOverwrites: [
+        { id: "1113409425152167997", deny: PermissionFlagsBits.ViewChannel },
+        { id: member.id, allow: [PermissionFlagsBits.ViewChannel] },
+      ],
+      reason: "New member",
+    })
+    .then((channel) => {
+      channels.push(channel.id);
+    });
+});
+
+// client.on(Events.GuildMemberRemove, (member) => {
+//   member.guild.channels.delete(member.id, "Member left");
+// });
+
 client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
+
+  client.channels.cache.forEach((channel) => {
+    if (channel.id != "1113409427224145923") channels.push(channel.id);
+  });
+
+  console.log(`Got channels:\n${channels}`);
+
   var embed;
   var colour;
   var subreddit;
   var imageLink = "";
   var j = 0;
   var subredditCount = 0;
+  var sortCount = 0;
+  var sort = "";
   var totalImages = 0;
   setInterval(async () => {
+    switch (sortCount) {
+      case 0:
+        sortCount++;
+        sort = "top";
+        break;
+      case 1:
+        sortCount++;
+        sort = "hot";
+        break;
+      case 2:
+        sortCount++;
+        sort = "new";
+        break;
+      default:
+        sortCount = 0;
+    }
     switch (subredditCount) {
       case 0:
         subreddit = "hentaibondage";
@@ -73,7 +122,10 @@ client.once(Events.ClientReady, (c) => {
         subredditCount = 0;
     }
 
-    request.open("GET", `http://www.reddit.com/r/${subreddit}.json?limit=100`);
+    request.open(
+      "GET",
+      `http://www.reddit.com/r/${subreddit}.json?limit=100?sort=${sort}`
+    );
     request.send();
     request.onload = () => {
       if (request.status != 200) return;
@@ -133,7 +185,7 @@ client.once(Events.ClientReady, (c) => {
       console.log(`Total images posted: ${totalImages}`);
       j = 0;
     }
-  }, 10000);
+  }, 20000);
 });
 
 // Log in to Discord with your client's token
