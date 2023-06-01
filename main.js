@@ -51,75 +51,63 @@ client.once(Events.ClientReady, (c) => {
   var subreddit;
   var imageLink = "";
   var j = 0;
-  var subredditCount = 0;
-  var sortCount = 0;
   var sort = "";
   var totalImages = 0;
   setInterval(async () => {
+    var sortCount = Math.floor(Math.random() * 3);
     switch (sortCount) {
       case 0:
-        sortCount++;
         sort = "top";
         break;
       case 1:
-        sortCount++;
         sort = "hot";
         break;
       case 2:
-        sortCount++;
         sort = "new";
         break;
-      default:
-        sortCount = 0;
     }
+    var subredditCount = Math.floor(Math.random() * 9);
     switch (subredditCount) {
       case 0:
         subreddit = "hentaibondage";
         colour = 0xd400ff;
-        subredditCount++;
         break;
       case 1:
         subreddit = "yurihentai";
         colour = 0xff00b2;
-        subredditCount++;
         break;
       case 2:
         subreddit = "hentaipetgirls";
         colour = 0xff004a;
-        subredditCount++;
         break;
       case 3:
         subreddit = "yuri";
         colour = 0xff0e00;
-        subredditCount++;
         break;
       case 4:
         subreddit = "Hentai_Bondage";
         colour = 0xff7000;
-        subredditCount++;
         break;
       case 5:
         subreddit = "GenshinImpactHentai";
         colour = 0xffcd00;
-        subredditCount++;
         break;
       case 6:
         subreddit = "GenshinImpactNSFW";
         colour = 0x57ff00;
-        subredditCount++;
         break;
       case 7:
         subreddit = "GenshinBondage";
         colour = 0x00ff21;
-        subredditCount++;
         break;
       case 8:
         subreddit = "GenshinYuri";
         colour = 0x02fd9c;
-        subredditCount++;
         break;
-      default:
-        subredditCount = 0;
+      case 8:
+        subreddit = "femboyhentai";
+        colour = 0x2b0cf3;
+        break;
     }
 
     request.open(
@@ -157,9 +145,7 @@ client.once(Events.ClientReady, (c) => {
         if (imgIndex === i) {
           imageLink = post.link;
           console.log(
-            `(${
-              subredditCount - 1
-            })${subreddit}:(${imgIndex})${imageLink}[${i}/${amountOfImages}]`
+            `(${subredditCount})[${sort}(${sortCount})]${subreddit}:(${imgIndex})${imageLink}[${i}/${amountOfImages}]`
           );
         }
         i++;
@@ -185,7 +171,7 @@ client.once(Events.ClientReady, (c) => {
       console.log(`Total images posted: ${totalImages}`);
       j = 0;
     }
-  }, 20000);
+  }, 10000);
 });
 
 // Log in to Discord with your client's token
