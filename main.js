@@ -46,15 +46,18 @@ client.once(Events.ClientReady, (c) => {
 
   console.log(`Got channels:\n${channels}`);
 
+  var time;
+  var j = 0;
   var embed;
   var colour;
   var subreddit;
-  var imageLink = "";
-  var j = 0;
   var sort = "";
+  var sortTime = "";
+  var imageLink = "";
   var totalImages = 0;
   setInterval(async () => {
     var sortCount = Math.floor(Math.random() * 3);
+    var sortTimeCount = Math.floor(Math.random() * 4);
     switch (sortCount) {
       case 0:
         sort = "top";
@@ -66,7 +69,23 @@ client.once(Events.ClientReady, (c) => {
         sort = "new";
         break;
     }
-    var subredditCount = Math.floor(Math.random() * 9);
+    switch (sortTimeCount) {
+      case 0:
+        sortTime = "hour";
+        break;
+      case 1:
+      case 2:
+      case 3:
+        sortTime = "all";
+        break;
+      case 4:
+        sortTime = "year";
+        break;
+      case 5:
+        sortTime = "month";
+        break;
+    }
+    var subredditCount = Math.floor(Math.random() * 11);
     switch (subredditCount) {
       case 0:
         subreddit = "hentaibondage";
@@ -104,15 +123,19 @@ client.once(Events.ClientReady, (c) => {
         subreddit = "GenshinYuri";
         colour = 0x02fd9c;
         break;
-      case 8:
-        subreddit = "femboyhentai";
-        colour = 0x2b0cf3;
+      case 9:
+        subreddit = "masturbationhentai";
+        colour = 0xd705fa;
+        break;
+      case 10:
+        subreddit = "hentaiforcedorgasms";
+        colour = 0xa74cb3;
         break;
     }
 
     request.open(
       "GET",
-      `http://www.reddit.com/r/${subreddit}.json?limit=100?sort=${sort}`
+      `http://www.reddit.com/r/${subreddit}.json?limit=100?sort=${sort}?t=${sortTime}`
     );
     request.send();
     request.onload = () => {
@@ -122,9 +145,8 @@ client.once(Events.ClientReady, (c) => {
       var resMap = new Map();
       var i = 0;
       resMap = res.map((post) => ({
-        author: post.data.author,
         link: post.data.url,
-        img: post.data?.preview?.images[0].source.url,
+        created: post.data.created,
       }));
       //   console.log(resMap);
       resMap.forEach(() => {
@@ -144,8 +166,12 @@ client.once(Events.ClientReady, (c) => {
         if (imgIndex > amountOfImages) imgIndex = 0;
         if (imgIndex === i) {
           imageLink = post.link;
+          time = `${new Date(post.created * 1000)}`;
           console.log(
-            `(${subredditCount})[${sort}(${sortCount})]${subreddit}:(${imgIndex})${imageLink}[${i}/${amountOfImages}]`
+            `---Embed report:
+              Date:${time}
+              Subreddit:(${subredditCount})[${sort} - ${sortTime}]${subreddit}
+              Image:(${imgIndex})${imageLink}[${i}/${amountOfImages}]`
           );
         }
         i++;
@@ -158,7 +184,8 @@ client.once(Events.ClientReady, (c) => {
           .setTitle("A wild kinky image appears:")
           .setImage(`${imageLink}`)
           .setTimestamp()
-          .setColor(colour);
+          .setColor(colour)
+          .setDescription(time);
 
         let channel = await client.channels.fetch(channelId);
         channel.send({
